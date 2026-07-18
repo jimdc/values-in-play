@@ -135,8 +135,8 @@ function draw() {
     if (value.x + value.width / 2 < bounds.left || value.x - value.width / 2 > bounds.right || value.y + value.height / 2 < bounds.top || value.y - value.height / 2 > bounds.bottom) continue;
     visibleValues.push(value);
     const p = worldToScreen(value.x, value.y);
-    const isSelected = selected?.id === value.id;
-    const isHovered = hovered?.id === value.id;
+    const isSelected = selected?.name === value.name;
+    const isHovered = hovered?.name === value.name;
     const screenWidth = value.width * camera.scale;
     const screenHeight = value.height * camera.scale;
 
@@ -239,7 +239,7 @@ function focusValue(value, { updateHash = true } = {}) {
   renderDetail(value);
   detail.classList.add("open");
   detail.setAttribute("aria-hidden", "false");
-  if (updateHash) history.replaceState(null, "", `#value=${encodeURIComponent(value.id)}`);
+  if (updateHash) history.replaceState(null, "", `#value=${encodeURIComponent(value.name)}`);
   announcement.textContent = `Selected ${value.name}, in ${value.domain} values.`;
   queueDraw();
 }
@@ -249,12 +249,12 @@ function renderDetail(value) {
   const levelTwo = data.clusters[value.level2Id];
   const domain = data.clusters[value.domainId];
   const siblings = (childrenByParent.get(value.parentId) || [])
-    .filter((item) => item.id !== value.id)
+    .filter((item) => item.name !== value.name)
     .sort((a, b) => Math.abs(a.pctConvos - value.pctConvos) - Math.abs(b.pctConvos - value.pctConvos))
     .slice(0, 8);
-  const siblingIds = new Set(siblings.map((item) => item.id));
+  const siblingIds = new Set(siblings.map((item) => item.name));
   const nearby = (valuesByLevelTwo.get(value.level2Id) || [])
-    .filter((item) => item.parentId !== value.parentId && !siblingIds.has(item.id))
+    .filter((item) => item.parentId !== value.parentId && !siblingIds.has(item.name))
     .sort((a, b) => Math.abs(a.pctConvos - value.pctConvos) - Math.abs(b.pctConvos - value.pctConvos))
     .slice(0, 5);
 
@@ -279,7 +279,7 @@ function renderDetail(value) {
 }
 
 function valueButton(value) {
-  return `<button type="button" data-value="${escapeAttribute(value.id)}">${escapeHtml(value.name)}</button>`;
+  return `<button type="button" data-value="${escapeAttribute(value.name)}">${escapeHtml(value.name)}</button>`;
 }
 
 function escapeHtml(text) {
@@ -332,7 +332,7 @@ canvas.addEventListener("pointermove", (event) => {
     return;
   }
   const next = hitTest(event.clientX, event.clientY);
-  if (next?.id !== hovered?.id) {
+  if (next?.name !== hovered?.name) {
     hovered = next;
     canvas.style.cursor = next ? "pointer" : "grab";
     queueDraw();
@@ -412,7 +412,7 @@ async function init() {
   data = await response.json();
   values = data.values;
   matches = values;
-  valueById = new Map(values.map((value) => [value.id, value]));
+  valueById = new Map(values.map((value) => [value.name, value]));
   for (const value of values) {
     if (!childrenByParent.has(value.parentId)) childrenByParent.set(value.parentId, []);
     childrenByParent.get(value.parentId).push(value);

@@ -20,7 +20,7 @@ class DataIntegrityTests(unittest.TestCase):
         leaves = [row for row in self.tree if row["level"] == "0"]
         self.assertEqual(len(leaves), 3307)
         self.assertEqual(len(self.payload["values"]), len(leaves))
-        self.assertEqual(len({value["id"] for value in self.payload["values"]}), 3307)
+        self.assertEqual(len({value["name"] for value in self.payload["values"]}), 3307)
         domain_rects = {domain["name"]: domain["rect"] for domain in self.payload["domains"]}
         for value in self.payload["values"]:
             x, y, width, height = domain_rects[value["domain"]]
@@ -43,10 +43,18 @@ class DataIntegrityTests(unittest.TestCase):
     def test_every_leaf_reaches_one_of_five_domains(self):
         domains = {domain["name"] for domain in self.payload["domains"]}
         self.assertEqual(domains, {"Practical", "Epistemic", "Social", "Protective", "Personal"})
+        clusters = self.payload["clusters"]
         for value in self.payload["values"]:
-            self.assertEqual(len(value["ancestorNames"]), 3)
             self.assertIn(value["domain"], domains)
-            self.assertEqual(value["ancestorNames"][-1], f"{value['domain']} values")
+            parent = clusters[str(value["parentId"])]
+            level_two = clusters[str(value["level2Id"])]
+            domain_cluster = clusters[str(value["domainId"])]
+            self.assertEqual(parent["level"], 1)
+            self.assertEqual(level_two["level"], 2)
+            self.assertEqual(domain_cluster["level"], 3)
+            self.assertEqual(parent["parentId"], value["level2Id"])
+            self.assertEqual(level_two["parentId"], value["domainId"])
+            self.assertEqual(domain_cluster["name"], f"{value['domain']} values")
 
     def test_frequency_totals_are_sane(self):
         # Values can co-occur, so conversation percentages legitimately sum above 100%.

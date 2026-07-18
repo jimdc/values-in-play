@@ -22,13 +22,23 @@
   search, surprise, one nav toggle). Don't reuse that grid on other pages with a different number of
   header children — `.topbar.static` (used by the languages page) instead lays out with flex and a
   `.view-toggle-group` nav so both view-toggle pills stay the same size regardless of viewport.
+- Every value's field position (`x`/`y`/`width`/`height`/`font`) is precomputed in
+  `scripts/preprocess.py` and shipped in `values.json`; `site/app.js` only reads and draws it. Don't
+  reintroduce client-side bin-packing on load — it was the first thing profiled away for field-load
+  performance. Cluster references (`parentId`/`level2Id`/`domainId`, and the `clusters` object's own
+  keys) are short integers recoded from the source CSV's long UUID-shaped ids, purely to keep the
+  shipped payload small — resolve them with `data.clusters[id]`, don't reintroduce the raw ids.
+  `tests/layout.mjs` asserts the field becomes visible/interactive within a fixed budget as a guard
+  against regressing this.
 
 ## Deployment
 
 - GitHub Pages publishes `site/` through `.github/workflows/pages.yml`.
 - Production is served below `/values-in-play/`. Keep runtime assets and fetches relative; a root
   path such as `/data/values.json` works locally but breaks on Pages.
-- Keep future data overlays keyed by stable value IDs and separate from canvas rendering.
+- Keep future data overlays keyed by stable value IDs (a leaf value's `name` is its id — always
+  unique, since the source CSV's leaf `cluster_id` is the name itself) and separate from canvas
+  rendering.
 
 ## Maintaining this file
 
