@@ -28,6 +28,154 @@ function axisLabel(axis) {
   return `${axis.negativePole} ↔ ${axis.positivePole}`;
 }
 
+const PROVENANCE_EXPLAINERS = {
+  transcribed: {
+    title: "Transcribed",
+    body: "Anthropic hasn't released a data file for this study — every number here was copied by hand from labels printed on the study's own published charts.",
+  },
+  estimated: {
+    title: "Estimated",
+    body: "This position was read by eye off a published chart image with no printed number next to it — treat it as accurate to roughly ±0.1 to ±0.15, not exact.",
+  },
+};
+
+let popoverEl = null;
+let popoverHideTimer = null;
+let activeAnchor = null;
+
+function ensurePopover() {
+  if (popoverEl) return popoverEl;
+  popoverEl = el("div", { class: "info-popover", role: "tooltip", id: "info-popover" });
+  popoverEl.hidden = true;
+  document.body.append(popoverEl);
+  popoverEl.addEventListener("mouseenter", () => clearTimeout(popoverHideTimer));
+  popoverEl.addEventListener("mouseleave", schedulePopoverHide);
+  return popoverEl;
+}
+
+function positionPopover(anchor) {
+  const rect = anchor.getBoundingClientRect();
+  popoverEl.style.visibility = "hidden";
+  popoverEl.hidden = false;
+  const popRect = popoverEl.getBoundingClientRect();
+  let left = rect.left + rect.width / 2 - popRect.width / 2;
+  left = Math.max(10, Math.min(left, window.innerWidth - popRect.width - 10));
+  let top = rect.bottom + 10;
+  if (top + popRect.height > window.innerHeight - 10) top = Math.max(10, rect.top - popRect.height - 10);
+  popoverEl.style.left = `${left}px`;
+  popoverEl.style.top = `${top}px`;
+  popoverEl.style.visibility = "visible";
+}
+
+function showPopover(anchor, buildContent) {
+  clearTimeout(popoverHideTimer);
+  ensurePopover();
+  activeAnchor = anchor;
+  popoverEl.innerHTML = "";
+  popoverEl.append(...buildContent());
+  positionPopover(anchor);
+  anchor.setAttribute("aria-expanded", "true");
+}
+
+function schedulePopoverHide() {
+  popoverHideTimer = setTimeout(hidePopover, 140);
+}
+
+function hidePopover() {
+  if (!popoverEl || popoverEl.hidden) return;
+  popoverEl.hidden = true;
+  if (activeAnchor) activeAnchor.setAttribute("aria-expanded", "false");
+  activeAnchor = null;
+}
+
+function repositionActivePopover() {
+  if (activeAnchor && popoverEl && !popoverEl.hidden) positionPopover(activeAnchor);
+}
+
+function wireTermTrigger(node, buildContent) {
+  node.classList.add("term-trigger");
+  node.setAttribute("tabindex", "0");
+  if (node.tagName !== "BUTTON") node.setAttribute("role", "button");
+  node.setAttribute("aria-expanded", "false");
+  const open = () => showPopover(node, buildContent);
+  node.addEventListener("mouseenter", open);
+  node.addEventListener("mouseleave", schedulePopoverHide);
+  node.addEventListener("focus", open);
+  node.addEventListener("blur", schedulePopoverHide);
+  node.addEventListener("click", (event) => {
+    event.stopPropagation();
+    open();
+  });
+  node.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") { event.preventDefault(); open(); }
+    else if (event.key === "Escape") hidePopover();
+  });
+}
+
+function polePopoverRow(poleName, topValues, emphasized) {
+  const row = el("p", { class: `info-popover-pole${emphasized ? " is-emphasized" : ""}` });
+  row.append(el("strong", { text: `${poleName}: ` }));
+  row.append(document.createTextNode(topValues.slice(0, 3).join(", ")));
+  return row;
+}
+
+function axisPopoverContent(axisId, emphasizePole) {
+  const axis = axisById.get(axisId);
+  const poles = el("div", { class: "info-popover-poles" }, [
+    polePopoverRow(axis.negativePole, axis.negativeTopValues, emphasizePole === axis.negativePole),
+    polePopoverRow(axis.positivePole, axis.positiveTopValues, emphasizePole === axis.positivePole),
+  ]);
+  return [
+    el("div", { class: "info-popover-title", text: axisLabel(axis) }),
+    el("p", { class: "info-popover-desc", text: axis.description }),
+    poles,
+  ];
+}
+
+function provenancePopoverContent(kind) {
+  const info = PROVENANCE_EXPLAINERS[kind];
+  return [
+    el("div", { class: "info-popover-title", text: info.title }),
+    el("p", { class: "info-popover-desc", text: info.body }),
+  ];
+}
+
+function wireProvenanceBadges() {
+  document.querySelectorAll("[data-prov]").forEach((node) => {
+    wireTermTrigger(node, () => provenancePopoverContent(node.dataset.prov));
+  });
+}
+
+function primerPoleChip(poleName, topValues) {
+  const chip = el("div", { class: "axis-primer-pole" });
+  chip.append(el("strong", { text: poleName }));
+  chip.append(el("span", { text: topValues.slice(0, 3).join(", ") }));
+  return chip;
+}
+
+function renderAxisPrimer() {
+  const host = document.querySelector("#axis-primer-body");
+  host.innerHTML = "";
+  for (const axis of data.axes) {
+    const card = el("div", { class: "axis-primer-card" });
+    card.append(el("h3", { text: axisLabel(axis) }));
+    card.append(el("p", { text: axis.description }));
+    card.append(el("div", { class: "axis-primer-poles" }, [
+      primerPoleChip(axis.negativePole, axis.negativeTopValues),
+      el("span", { class: "axis-primer-vs", text: "↔" }),
+      primerPoleChip(axis.positivePole, axis.positiveTopValues),
+    ]));
+    host.append(card);
+  }
+}
+
+function wireAxisInfoButtons() {
+  const xInfo = document.querySelector("#axis-x-info");
+  const yInfo = document.querySelector("#axis-y-info");
+  wireTermTrigger(xInfo, () => axisPopoverContent(document.querySelector("#axis-x").value));
+  wireTermTrigger(yInfo, () => axisPopoverContent(document.querySelector("#axis-y").value));
+}
+
 function formatSigma(value) {
   const sign = value > 0 ? "+" : value < 0 ? "−" : "±";
   return `${sign}${Math.abs(value).toFixed(2)}σ`;
@@ -112,15 +260,16 @@ function renderScatter() {
   svg.append(svgEl("line", { class: "scatter-axis-line", x1: pad, y1: scaleY(0), x2: width - pad, y2: scaleY(0) }));
 
   const labels = [
-    [xAxis.negativePole, 14, scaleY(0) - 8, "start"],
-    [xAxis.positivePole, width - 14, scaleY(0) - 8, "end"],
-    [yAxis.positivePole, scaleX(0), pad - 14, "middle"],
-    [yAxis.negativePole, scaleX(0), height - pad + 22, "middle"],
+    { text: xAxis.negativePole, x: 14, y: scaleY(0) - 8, anchor: "start", axisId: xAxisId, pole: xAxis.negativePole },
+    { text: xAxis.positivePole, x: width - 14, y: scaleY(0) - 8, anchor: "end", axisId: xAxisId, pole: xAxis.positivePole },
+    { text: yAxis.positivePole, x: scaleX(0), y: pad - 14, anchor: "middle", axisId: yAxisId, pole: yAxis.positivePole },
+    { text: yAxis.negativePole, x: scaleX(0), y: height - pad + 22, anchor: "middle", axisId: yAxisId, pole: yAxis.negativePole },
   ];
-  for (const [text, x, y, anchor] of labels) {
-    const t = svgEl("text", { class: "scatter-axis-label", x, y, "text-anchor": anchor });
+  for (const { text, x, y, anchor, axisId, pole } of labels) {
+    const t = svgEl("text", { class: "scatter-axis-label", x, y, "text-anchor": anchor, "aria-label": `What does ${pole} mean?` });
     t.textContent = text;
     svg.append(t);
+    wireTermTrigger(t, () => axisPopoverContent(axisId, pole));
   }
 
   for (const language of data.languages) {
@@ -188,11 +337,11 @@ function renderProfileCard(language) {
       pill.style.left = value < 0 ? `${50 - pct}%` : `${50 + pct}%`;
       track.append(pill);
     }
-    const row = el("div", { class: "axis-row" }, [
-      el("span", { class: `pole${pole === axis.negativePole ? " leaning" : ""}`, text: axis.negativePole }),
-      track,
-      el("span", { class: `pole right${pole === axis.positivePole ? " leaning" : ""}`, text: axis.positivePole }),
-    ]);
+    const negSpan = el("span", { class: `pole${pole === axis.negativePole ? " leaning" : ""}`, text: axis.negativePole });
+    const posSpan = el("span", { class: `pole right${pole === axis.positivePole ? " leaning" : ""}`, text: axis.positivePole });
+    wireTermTrigger(negSpan, () => axisPopoverContent(axisId, axis.negativePole));
+    wireTermTrigger(posSpan, () => axisPopoverContent(axisId, axis.positivePole));
+    const row = el("div", { class: "axis-row" }, [negSpan, track, posSpan]);
     rows.append(row);
   }
   card.append(rows);
@@ -238,7 +387,11 @@ function renderHeatmap() {
   if (!heatmapState.transposed) {
     host.style.gridTemplateColumns = `140px repeat(${axes.length}, minmax(58px, 1fr))`;
     host.append(el("div", { class: "hm-rowhead" }));
-    for (const axis of axes) host.append(el("div", { class: "hm-colhead", text: axisLabel(axis) }));
+    for (const axis of axes) {
+      const head = el("div", { class: "hm-colhead", text: axisLabel(axis) });
+      wireTermTrigger(head, () => axisPopoverContent(axis.id));
+      host.append(head);
+    }
     for (const language of languages) {
       host.append(el("div", { class: "hm-rowhead", "data-language": language.language, text: language.language }));
       for (const axis of axes) {
@@ -254,7 +407,9 @@ function renderHeatmap() {
     host.append(el("div", { class: "hm-rowhead" }));
     for (const language of languages) host.append(el("div", { class: "hm-colhead", "data-language": language.language, text: language.isoCode }));
     for (const axis of axes) {
-      host.append(el("div", { class: "hm-rowhead", text: axisLabel(axis) }));
+      const head = el("div", { class: "hm-rowhead", text: axisLabel(axis) });
+      wireTermTrigger(head, () => axisPopoverContent(axis.id));
+      host.append(head);
       for (const language of languages) {
         const value = language.axes[axis.id];
         const cell = el("div", { class: "hm-cell", "data-language": language.language, text: formatSigma(value) });
@@ -356,11 +511,11 @@ function renderModelCards() {
         pill.style.left = value < 0 ? `${50 - pct}%` : `${50 + pct}%`;
         track.append(pill);
       }
-      rows.append(el("div", { class: "axis-row" }, [
-        el("span", { class: `pole${pole === axis.negativePole ? " leaning" : ""}`, text: axis.negativePole }),
-        track,
-        el("span", { class: `pole right${pole === axis.positivePole ? " leaning" : ""}`, text: axis.positivePole }),
-      ]));
+      const negSpan = el("span", { class: `pole${pole === axis.negativePole ? " leaning" : ""}`, text: axis.negativePole });
+      const posSpan = el("span", { class: `pole right${pole === axis.positivePole ? " leaning" : ""}`, text: axis.positivePole });
+      wireTermTrigger(negSpan, () => axisPopoverContent(axisId, axis.negativePole));
+      wireTermTrigger(posSpan, () => axisPopoverContent(axisId, axis.positivePole));
+      rows.append(el("div", { class: "axis-row" }, [negSpan, track, posSpan]));
     }
     card.append(rows);
     const list = el("ul", { class: "distinctive-list" });
@@ -385,17 +540,34 @@ function wireHeatmapControls() {
   });
 }
 
+function wireGlobalPopoverDismissal() {
+  document.addEventListener("click", (event) => {
+    if (!popoverEl || popoverEl.hidden) return;
+    if (popoverEl.contains(event.target)) return;
+    if (activeAnchor && activeAnchor.contains(event.target)) return;
+    hidePopover();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") hidePopover();
+  });
+  window.addEventListener("scroll", repositionActivePopover, { passive: true, capture: true });
+}
+
 async function init() {
   const response = await fetch("./data/languages.json");
   if (!response.ok) throw new Error(`Could not load language data (${response.status})`);
   data = await response.json();
   axisById = new Map(data.axes.map((axis) => [axis.id, axis]));
 
+  renderAxisPrimer();
   renderAxisSelects();
+  wireAxisInfoButtons();
   renderScatter();
   renderHeatmap();
   renderModelCards();
   wireHeatmapControls();
+  wireProvenanceBadges();
+  wireGlobalPopoverDismissal();
 
   const hash = new URLSearchParams(location.hash.slice(1));
   const initial = hash.get("language");
