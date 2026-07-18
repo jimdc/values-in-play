@@ -67,6 +67,13 @@ function setLanguage(name, { updateHash = true } = {}) {
   if (updateHash) history.replaceState(null, "", `#language=${encodeURIComponent(language.language)}`);
 }
 
+function preventDuplicateAxisSelection() {
+  const xSelect = document.querySelector("#axis-x");
+  const ySelect = document.querySelector("#axis-y");
+  for (const option of xSelect.options) option.disabled = option.value === ySelect.value;
+  for (const option of ySelect.options) option.disabled = option.value === xSelect.value;
+}
+
 function renderAxisSelects() {
   const xSelect = document.querySelector("#axis-x");
   const ySelect = document.querySelector("#axis-y");
@@ -74,10 +81,14 @@ function renderAxisSelects() {
     xSelect.append(el("option", { value: axis.id, text: axisLabel(axis) }));
     ySelect.append(el("option", { value: axis.id, text: axisLabel(axis) }));
   }
-  xSelect.value = "warmth_rigor";
-  ySelect.value = "candor_execution";
-  xSelect.addEventListener("change", renderScatter);
-  ySelect.addEventListener("change", renderScatter);
+  const [defaultX, defaultY] = data.meta.axisOrder.includes("warmth_rigor") && data.meta.axisOrder.includes("candor_execution")
+    ? ["warmth_rigor", "candor_execution"]
+    : data.meta.axisOrder;
+  xSelect.value = defaultX;
+  ySelect.value = defaultY;
+  preventDuplicateAxisSelection();
+  xSelect.addEventListener("change", () => { preventDuplicateAxisSelection(); renderScatter(); });
+  ySelect.addEventListener("change", () => { preventDuplicateAxisSelection(); renderScatter(); });
 }
 
 function renderScatter() {
@@ -127,6 +138,7 @@ function renderScatter() {
     label.textContent = language.isoCode;
     svg.append(label);
   }
+  svg.setAttribute("data-dot-count", String(svg.querySelectorAll(".scatter-dot").length));
   highlightScatter(selectedLanguage);
 }
 

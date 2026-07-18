@@ -7,7 +7,8 @@
     "preprocess": "python3 scripts/preprocess.py && python3 scripts/preprocess_languages.py",
     "test:data": "python3 -m unittest discover -s tests -p 'test_*.py'",
     "test:smoke": "node tests/smoke.mjs",
-    "test": "npm run preprocess && npm run test:data && npm run test:smoke",
+    "test:layout": "node tests/layout.mjs",
+    "test": "npm run preprocess && npm run test:data && npm run test:smoke && npm run test:layout",
     "serve": "python3 -m http.server 8000 -d site"
   },
   "devDependencies": {

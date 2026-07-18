@@ -8,12 +8,20 @@
 - `data/curated/*.csv` are hand-transcribed/estimated (no downloadable source exists) — see
   `data/curated/README.md` for exact provenance per file. `npm run preprocess` also compiles these
   into `site/data/languages.json` via `scripts/preprocess_languages.py`; do not hand-edit that JSON.
-- `npm test` is the verification gate. It rebuilds data, runs integrity tests, and performs a
-  headless browser smoke test.
+- `npm test` is the verification gate. It rebuilds data, runs integrity tests, performs a headless
+  browser smoke test (`tests/smoke.mjs`), and a viewport layout check (`tests/layout.mjs`) across
+  390/768/1440/2000px on both pages. Screenshots land in the gitignored `test-artifacts/` and are
+  uploaded as a CI artifact by `.github/workflows/pages.yml` — check that when a PR needs a visual
+  look. Any new page or nav pattern should extend `tests/layout.mjs` rather than relying on a single
+  viewport smoke test.
 - The site has two views: the canvas field (`site/index.html`) and the languages explorer
   (`site/languages.html`, deep-linkable via `#languages`). They share `site/styles.css`; the
   explorer's own layout lives in `site/languages.css`. Keep the field's canvas rendering untouched
   when working on the explorer, and vice versa.
+- The field's `.topbar` uses a fixed 4-column grid sized for its specific header contents (brand,
+  search, surprise, one nav toggle). Don't reuse that grid on other pages with a different number of
+  header children — `.topbar.static` (used by the languages page) instead lays out with flex and a
+  `.view-toggle-group` nav so both view-toggle pills stay the same size regardless of viewport.
 
 ## Deployment
 
