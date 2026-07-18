@@ -62,6 +62,36 @@ try {
   assert.notEqual(initialProfile, "Japanese", "clicking a new language should change the selection");
   assert.equal(await page.locator("#compare-note strong").textContent(), "Japanese's anchor countries");
 
+  const axisPrimer = page.locator("#axis-primer");
+  await axisPrimer.locator("summary").click();
+  assert.equal(await axisPrimer.evaluate((node) => node.open), true, "the axis primer should open on click");
+  assert.equal(
+    await page.locator("#axis-primer-body .axis-primer-card").count(),
+    4,
+    "the axis primer should explain all four axes"
+  );
+
+  const axisLabelTrigger = page.locator("#lang-scatter .scatter-axis-label").first();
+  await axisLabelTrigger.click();
+  await page.locator("#info-popover").waitFor({ state: "visible" });
+  const axisPopoverTitle = await page.locator("#info-popover .info-popover-title").textContent();
+  assert.ok(axisPopoverTitle.includes("↔"), "axis explainer popover should name the axis's two poles");
+  const axisPopoverDesc = await page.locator("#info-popover .info-popover-desc").textContent();
+  assert.ok(axisPopoverDesc.length > 10, "axis explainer popover should show a plain-language definition");
+  await page.keyboard.press("Escape");
+  await page.locator("#info-popover").waitFor({ state: "hidden" });
+
+  const provBadge = page.locator('.prov-badge[data-prov="transcribed"]').first();
+  await provBadge.click();
+  await page.locator("#info-popover").waitFor({ state: "visible" });
+  assert.equal(
+    await page.locator("#info-popover .info-popover-title").textContent(),
+    "Transcribed",
+    "the provenance badge should explain what 'transcribed' means in plain language"
+  );
+  await page.keyboard.press("Escape");
+  await page.locator("#info-popover").waitFor({ state: "hidden" });
+
   const clusterToggle = page.locator("#cluster-toggle");
   await clusterToggle.click();
   assert.equal(await clusterToggle.getAttribute("aria-pressed"), "true", "cluster toggle should activate");

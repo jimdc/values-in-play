@@ -38,10 +38,18 @@
           something to play with: which languages cluster together, which axes divide them, and
           whether any of it rhymes with how people in different countries describe their own values.
         </p>
+        <details class="axis-primer" id="axis-primer">
+          <summary>
+            <span class="axis-primer-summary-text">What do these four axes actually mean?</span>
+            <span class="axis-primer-chevron" aria-hidden="true">▾</span>
+          </summary>
+          <div class="axis-primer-body" id="axis-primer-body"></div>
+        </details>
         <p class="source-line">
           Source: Anthropic, <a href="https://www.anthropic.com/research/claude-values-models-languages" target="_blank" rel="noreferrer">“Claude's values across models and languages”</a>
-          (Jul 13, 2026). Figures are transcribed from the article's published charts — see
-          <code>data/curated/README.md</code> for exactly what was measured, transcribed, and estimated.
+          (Jul 13, 2026). Figures are
+          <button type="button" class="prov-badge" data-prov="transcribed">transcribed</button>
+          from the article's published charts, not a downloadable dataset.
         </p>
       </section>
 
@@ -53,16 +61,22 @@
         </div>
         <div class="map-controls">
           <label>Horizontal axis
-            <select id="axis-x"></select>
+            <span class="select-with-info">
+              <select id="axis-x"></select>
+              <button type="button" class="axis-info-btn" id="axis-x-info" aria-label="What does this axis mean?">ⓘ</button>
+            </span>
           </label>
           <label>Vertical axis
-            <select id="axis-y"></select>
+            <span class="select-with-info">
+              <select id="axis-y"></select>
+              <button type="button" class="axis-info-btn" id="axis-y-info" aria-label="What does this axis mean?">ⓘ</button>
+            </span>
           </label>
         </div>
         <div class="map-stage">
           <svg id="lang-scatter" viewBox="0 0 640 480" role="img" aria-label="Scatter plot of 20 languages positioned by two value axes"></svg>
         </div>
-        <p class="chart-source">Data: Anthropic value-axis study, transcribed (σ from the cross-conversation mean).</p>
+        <p class="chart-source">Data: Anthropic value-axis study, <button type="button" class="prov-badge" data-prov="transcribed">transcribed</button> (σ from the cross-conversation mean).</p>
       </section>
 
       <section class="lang-panel" id="card-panel" aria-labelledby="card-heading">
@@ -72,7 +86,7 @@
             found distinctive to it.</p>
         </div>
         <div id="profile-card" class="profile-card"></div>
-        <p class="chart-source">Data: Anthropic value-axis study, transcribed.</p>
+        <p class="chart-source">Data: Anthropic value-axis study, <button type="button" class="prov-badge" data-prov="transcribed">transcribed</button>.</p>
       </section>
 
       <section class="lang-panel" id="heatmap-panel" aria-labelledby="heatmap-heading">
@@ -88,7 +102,7 @@
         <div class="heatmap-stage">
           <div id="heatmap" role="table" aria-label="Heatmap of languages by value axes"></div>
         </div>
-        <p class="chart-source">Data: Anthropic value-axis study, transcribed. Color encodes σ from the mean toward each axis's labeled pole.</p>
+        <p class="chart-source">Data: Anthropic value-axis study, <button type="button" class="prov-badge" data-prov="transcribed">transcribed</button>. Color encodes σ from the mean toward each axis's labeled pole.</p>
       </section>
 
       <section class="lang-panel" id="compare-panel" aria-labelledby="compare-heading">
@@ -109,11 +123,28 @@
           <div id="compare-note" class="compare-note"></div>
         </div>
         <p class="chart-source caveat">
-          Estimated, not exact: country positions were read visually off the published chart image
-          (no numeric table is published for this map). A language's "anchor countries" are a small,
-          unweighted, hand-picked set of major speaker countries — see <code>data/curated/README.md</code>
-          for the full caveat and country list per language.
+          <button type="button" class="prov-badge" data-prov="estimated">estimated</button>
+          Country positions were read by eye off a published chart image — there's no numeric
+          table for this map, so treat two countries within about 0.2 of each other as roughly
+          the same spot, not meaningfully different.
         </p>
+        <details class="provenance-detail">
+          <summary>Why "anchor countries," and how were they picked?</summary>
+          <div class="provenance-detail-body">
+            <p>A language isn't a country, so each language above is paired with one or a few
+              "anchor countries" whose speakers stand in for it on this human-values map. Some
+              languages get a single anchor (Hindi → India, Japanese → Japan); others get a small
+              hand-picked set averaged together (English, Arabic, Spanish, Portuguese).</p>
+            <p>That averaging can blur real differences — the Spanish anchor, for instance,
+              averages Spain with Mexico, Argentina, and Colombia, countries that sit in quite
+              different neighborhoods of the human-values map. The country list behind each
+              language's anchor is shown above whenever you select it, so the shortcut stays
+              visible rather than hidden.</p>
+            <p>Read this comparison as a loose "does this rhyme?" prompt, not a claim that a
+              language's speakers hold the values Claude expresses in that language, or that the
+              two are measuring the same thing.</p>
+          </div>
+        </details>
       </section>
 
       <section class="lang-panel" id="model-panel" aria-labelledby="model-heading">
@@ -122,7 +153,7 @@
           <p>The same four axes, averaged across all conversations for each of the three models studied.</p>
         </div>
         <div id="model-cards" class="model-cards"></div>
-        <p class="chart-source">Data: Anthropic value-axis study, transcribed.</p>
+        <p class="chart-source">Data: Anthropic value-axis study, <button type="button" class="prov-badge" data-prov="transcribed">transcribed</button>.</p>
       </section>
     </main>
 
@@ -132,11 +163,26 @@
         · <a href="https://cdn.sanity.io/files/4zrzovbb/website/02da7f28f74daa1be526d3ded451a4efc86bccdc.pdf" target="_blank" rel="noreferrer">Appendix</a>
         · Human-values anchor: <a href="https://en.wikipedia.org/wiki/Inglehart%E2%80%93Welzel_cultural_map_of_the_world" target="_blank" rel="noreferrer">Inglehart–Welzel cultural map</a> (World Values Survey)
       </p>
+      <details class="provenance-detail footer-provenance">
+        <summary>Where these numbers actually come from</summary>
+        <div class="provenance-detail-body">
+          <p><strong>Transcribed</strong> (the language, model, and axis-definition figures):
+            Anthropic never published a data file for this study — the per-language and per-model
+            numbers exist only as labels printed inside chart images in the article. Every figure
+            here was copied by hand from those printed labels and cross-checked against the
+            article's own callouts (like "Claude expresses the most warmth in Hindi and Arabic").</p>
+          <p><strong>Estimated</strong> (the human-values map positions): no country-by-country
+            coordinate table is published for the Inglehart–Welzel map either. Those positions
+            were read by eye off a chart image at high resolution, so expect roughly ±0.1 to
+            ±0.15 of error on each axis.</p>
+          <p>Treat every number on this page as a summary of a two-week 2026 sample and a single
+            published chart image — not a definitive, durable measurement of a language, a model,
+            or a country's values.</p>
+        </div>
+      </details>
       <p class="fine-print">
-        Value inference is subjective and this page's numbers are hand-transcribed from published
-        charts, not a released dataset — see <code>data/curated/README.md</code> in the repository
-        for full provenance. This is not a definitive assessment of Claude, language models, or any
-        language's speakers.
+        Value inference is subjective. This page is not a definitive assessment of Claude,
+        language models, or any language's speakers.
       </p>
     </footer>
 

@@ -1,0 +1,2 @@
+# Every figure here is deliberately labeled transcribed or estimated (visible UI badges + per-datapoint provenance in README/AGENTS). This is the explicitly-labeled case the estimation-language check exists to require, not silent smoothing.
+A006 # provenance is explicitly labeled in-UI and documented per datapoint across this repo
