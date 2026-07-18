@@ -1,5 +1,7 @@
 # Values in Play
 
+**[Live site](https://jimdc.github.io/values-in-play/)**
+
 Values in Play is a playful, browse-first explorer for the values Claude expressed in real
 conversations. It turns Anthropic's 3,307-value taxonomy into a dense canvas field: drag to roam,
 scroll to zoom, click through value families, search the hierarchy, or ask for a rare surprise.
