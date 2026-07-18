@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="Wander through 3,307 values expressed by Claude in real conversations.">
+    <meta name="theme-color" content="#f4eddf">
+    <title>Values in Play</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="explorer" aria-label="Values in Play explorer">
+      <canvas id="field" aria-label="A pannable field of 3,307 values. Drag to explore, scroll to zoom, and click a value for details."></canvas>
+
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="Reset Values in Play">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+          <span>values in play</span>
+        </a>
+        <label class="search-wrap">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></svg>
+          <span class="sr-only">Search values and their families</span>
+          <input id="search" type="search" placeholder="Find a value or family…" autocomplete="off" spellcheck="false">
+          <kbd>/</kbd>
+        </label>
+        <button id="surprise" class="surprise" type="button">
+          <span aria-hidden="true">✦</span> Surprise me
+        </button>
+      </header>
+
+      <div class="field-meta" aria-live="polite">
+        <strong id="result-count">3,307</strong>
+        <span id="result-label">values to wander</span>
+      </div>
+
+      <div class="instructions"><span>drag to roam</span><span>scroll to zoom</span><span>click to wander</span></div>
+
+      <aside id="detail" class="detail" aria-label="Selected value" aria-hidden="true">
+        <button id="detail-close" class="detail-close" type="button" aria-label="Close details">×</button>
+        <div id="detail-content"></div>
+      </aside>
+
+      <div class="map-shell" role="navigation" aria-label="Map of value domains">
+        <canvas id="minimap" width="230" height="136"></canvas>
+      </div>
+
+      <button id="about-open" class="about-open" type="button">About this field</button>
+
+      <div id="empty" class="empty" hidden>
+        <span aria-hidden="true">◇</span>
+        <strong>No value found</strong>
+        <p>Try a broader word. Ancestor names count too.</p>
+        <button type="button" id="clear-search">Clear search</button>
+      </div>
+
+      <div id="loading" class="loading">
+        <span class="loading-orbit" aria-hidden="true"></span>
+        <strong>Gathering 3,307 values…</strong>
+      </div>
+    </main>
+
+    <dialog id="about">
+      <button id="about-close" class="dialog-close" type="button" aria-label="Close">×</button>
+      <p class="eyebrow">A field guide to what Claude values</p>
+      <h1>What is this?</h1>
+      <p>
+        Anthropic studied values expressed by Claude across roughly 308,000 real conversations,
+        then organized 3,307 value labels into a four-level taxonomy. This field turns that
+        research artifact into a place to wander.
+      </p>
+      <p>
+        Label size reflects how often a value appeared across conversations. Color marks one of
+        five broad domains. Cluster context is generated from the dataset's hierarchy; the source
+        does not provide definitions for individual leaf values.
+      </p>
+      <p class="fine-print">
+        Value inference is subjective, and the model-generated labels and descriptions may contain
+        errors. This is not a definitive assessment of Claude or language models generally.
+      </p>
+      <div class="source-links">
+        <a href="https://huggingface.co/datasets/Anthropic/values-in-the-wild" target="_blank" rel="noreferrer">Dataset ↗</a>
+        <a href="https://assets.anthropic.com/m/18d20cca3cde3503/original/Values-in-the-Wild-Paper.pdf" target="_blank" rel="noreferrer">Paper ↗</a>
+        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0 ↗</a>
+      </div>
+      <p class="credit">Data and taxonomy © Anthropic, used under CC BY 4.0.</p>
+    </dialog>
+
+    <div id="announcement" class="sr-only" aria-live="polite"></div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

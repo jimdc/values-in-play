@@ -1,0 +1,16 @@
+{
+  "name": "values-in-play",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A playful explorer for Anthropic's Values in the Wild dataset.",
+  "scripts": {
+    "preprocess": "python3 scripts/preprocess.py",
+    "test:data": "python3 -m unittest discover -s tests -p 'test_*.py'",
+    "test:smoke": "node tests/smoke.mjs",
+    "test": "npm run preprocess && npm run test:data && npm run test:smoke",
+    "serve": "python3 -m http.server 8000 -d site"
+  },
+  "devDependencies": {
+    "playwright": "1.61.1"
+  }
+}
