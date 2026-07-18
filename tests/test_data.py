@@ -58,5 +58,76 @@ class DataIntegrityTests(unittest.TestCase):
         self.assertTrue(all(value["pctConvos"] > 0 for value in self.payload["values"]))
 
 
+class LanguageDataIntegrityTests(unittest.TestCase):
+    AXES = ["deference_caution", "warmth_rigor", "depth_brevity", "candor_execution"]
+
+    @classmethod
+    def setUpClass(cls):
+        subprocess.run(["python3", "scripts/preprocess_languages.py"], cwd=ROOT, check=True)
+        cls.payload = json.loads((ROOT / "site/data/languages.json").read_text(encoding="utf-8"))
+        with (ROOT / "data/curated/language_value_axes.csv").open(newline="", encoding="utf-8") as handle:
+            cls.language_rows = list(csv.DictReader(handle))
+        with (ROOT / "data/curated/wvs_country_scores.csv").open(newline="", encoding="utf-8") as handle:
+            cls.wvs_rows = list(csv.DictReader(handle))
+
+    def test_exactly_twenty_languages_with_unique_names(self):
+        self.assertEqual(len(self.language_rows), 20)
+        self.assertEqual(len(self.payload["languages"]), 20)
+        names = {row["language"] for row in self.payload["languages"]}
+        self.assertEqual(len(names), 20)
+
+    def test_axis_order_and_definitions_are_consistent(self):
+        self.assertEqual(self.payload["meta"]["axisOrder"], self.AXES)
+        axis_ids = [axis["id"] for axis in self.payload["axes"]]
+        self.assertEqual(axis_ids, self.AXES)
+        for axis in self.payload["axes"]:
+            self.assertTrue(axis["negativePole"])
+            self.assertTrue(axis["positivePole"])
+            self.assertTrue(axis["description"])
+
+    def test_language_axis_values_are_within_plausible_range(self):
+        # The published chart's steepest lean (Hindi's warmth) is 0.49σ; a generous
+        # ceiling catches transcription slips (e.g. a misplaced decimal) without being brittle.
+        for language in self.payload["languages"]:
+            self.assertEqual(set(language["axes"].keys()), set(self.AXES))
+            for axis_id, value in language["axes"].items():
+                self.assertGreaterEqual(value, -1.0, f"{language['language']} {axis_id}")
+                self.assertLessEqual(value, 1.0, f"{language['language']} {axis_id}")
+            self.assertGreater(language["nConversations"], 0)
+            self.assertTrue(language["distinctiveBehaviors"])
+            self.assertTrue(language["isoCode"])
+
+    def test_three_models_with_axis_values_in_range(self):
+        self.assertEqual(len(self.payload["models"]), 3)
+        for model in self.payload["models"]:
+            self.assertEqual(set(model["axes"].keys()), set(self.AXES))
+            for axis_id, value in model["axes"].items():
+                self.assertGreaterEqual(value, -1.0)
+                self.assertLessEqual(value, 1.0)
+            self.assertGreater(model["nConversations"], 0)
+            self.assertTrue(model["distinctiveBehaviors"])
+
+    def test_wvs_country_scores_are_within_chart_bounds(self):
+        self.assertGreaterEqual(len(self.wvs_rows), 20)
+        for row in self.wvs_rows:
+            traditional_secular = float(row["traditional_secular"])
+            survival_self_expression = float(row["survival_selfexpression"])
+            self.assertGreaterEqual(traditional_secular, -3.0)
+            self.assertLessEqual(traditional_secular, 3.0)
+            self.assertGreaterEqual(survival_self_expression, -3.0)
+            self.assertLessEqual(survival_self_expression, 3.0)
+            self.assertTrue(row["cultural_zone"])
+
+    def test_every_language_maps_to_at_least_one_known_wvs_anchor_country(self):
+        known_countries = {row["country"] for row in self.wvs_rows}
+        self.assertEqual(len(self.payload["languageCountryMap"]), 20)
+        for mapping in self.payload["languageCountryMap"]:
+            self.assertTrue(mapping["anchorCountries"])
+            for country in mapping["anchorCountries"]:
+                self.assertIn(country, known_countries)
+            self.assertIn("traditionalSecular", mapping["wvs"])
+            self.assertIn("survivalSelfExpression", mapping["wvs"])
+
+
 if __name__ == "__main__":
     unittest.main()

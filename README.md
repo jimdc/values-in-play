@@ -60,6 +60,29 @@ successfully embodied that value. Values can co-occur, so those percentages do n
 The extracted labels, descriptions, and hierarchy are model-generated, value inference is
 subjective, and the source may contain inaccuracies.
 
+## Languages explorer
+
+Alongside the field, [`site/languages.html`](./site/languages.html) is a second view — reachable via
+the "Languages" toggle in the top bar, or the deep link `#languages` — that explores a companion
+question: how does the mix of values Claude expresses shift across languages and models, and does
+that rhyme with how people in different countries describe their own values?
+
+It's built from two sources, both hand-curated because neither publishes a downloadable dataset:
+
+- **Anthropic, [_Claude's values across models and languages_](https://www.anthropic.com/research/claude-values-models-languages)**
+  (Jul 2026) — the study behind the four value axes (Deference vs. Caution, Warmth vs. Rigor, Depth
+  vs. Brevity, Candor vs. Execution), transcribed by hand from the article's published charts for
+  all 20 languages and all 3 models it covers.
+- **The [Inglehart–Welzel cultural map of the world](https://en.wikipedia.org/wiki/Inglehart%E2%80%93Welzel_cultural_map_of_the_world)**
+  (World Values Survey) — used as a loosely-caveated "does this rhyme?" comparison layer, with
+  country positions estimated visually from the published chart and each language mapped to a small,
+  explicitly-listed set of anchor countries.
+
+See [`data/curated/README.md`](./data/curated/README.md) for exactly what was measured, transcribed,
+and estimated, and on what date. `scripts/preprocess_languages.py` (run as part of `npm run
+preprocess`) compiles the curated CSVs into [`site/data/languages.json`](./site/data/languages.json);
+as with the field's data, edit the CSVs, not the generated JSON.
+
 ## License and attribution
 
 The vendored dataset, hierarchy text, and derived JSON are attributed to Anthropic and used under

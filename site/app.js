@@ -403,6 +403,10 @@ document.addEventListener("keydown", (event) => {
 addEventListener("resize", resize);
 
 async function init() {
+  if (location.hash === "#languages") {
+    location.replace("./languages.html");
+    return;
+  }
   const response = await fetch("./data/values.json");
   if (!response.ok) throw new Error(`Could not load values (${response.status})`);
   data = await response.json();

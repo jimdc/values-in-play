@@ -1,0 +1,33 @@
+country,traditional_secular,survival_selfexpression,cultural_zone
+India,-0.05,0.30,South Asia
+Jordan,-1.55,-1.15,African-Islamic
+Iraq,-0.85,-1.05,African-Islamic
+Morocco,-1.20,-1.15,African-Islamic
+Algeria,-0.90,-0.65,African-Islamic
+United States,-0.15,1.20,English-Speaking
+Great Britain,0.05,1.55,English-Speaking
+Australia,0.35,1.70,English-Speaking
+Canada,-0.30,2.05,English-Speaking
+Ireland,-0.55,1.20,English-Speaking
+New Zealand,0.25,1.45,English-Speaking
+Russia,0.55,-1.15,Orthodox
+Indonesia,-0.25,-0.65,African-Islamic
+Netherlands,1.35,0.95,Protestant Europe
+Thailand,-0.15,-0.10,South Asia
+Poland,-0.55,0.15,Catholic Europe
+Japan,1.85,0.05,Confucian
+Germany,1.15,0.65,Protestant Europe
+South Korea,1.15,-0.55,Confucian
+Italy,0.35,0.75,Catholic Europe
+Ukraine,0.55,-1.50,Orthodox
+Vietnam,-0.10,-0.15,South Asia
+Spain,0.45,0.35,Catholic Europe
+Mexico,-1.60,1.25,Latin America
+Argentina,-1.20,0.35,Latin America
+Colombia,-1.95,0.90,Latin America
+Turkey,-1.15,-0.40,African-Islamic
+China,1.20,-0.75,Confucian
+Romania,-0.30,-0.85,Orthodox
+France,0.55,1.05,Catholic Europe
+Portugal,-0.05,0.05,Catholic Europe
+Brazil,-0.85,0.20,Latin America

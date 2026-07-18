@@ -45,17 +45,17 @@ button, a { -webkit-tap-highlight-color: transparent; }
   top: max(18px, env(safe-area-inset-top));
   left: 50%;
   display: grid;
-  grid-template-columns: auto minmax(240px, 520px) auto;
+  grid-template-columns: auto minmax(200px, 460px) auto auto;
   align-items: center;
   gap: 10px;
-  width: min(940px, calc(100% - 36px));
+  width: min(1020px, calc(100% - 36px));
   transform: translateX(-50%);
   pointer-events: none;
 }
 
 .topbar > * { pointer-events: auto; }
 
-.brand, .search-wrap, .surprise {
+.brand, .search-wrap, .surprise, .view-toggle {
   min-height: 52px;
   border: 1px solid rgba(24, 33, 38, 0.11);
   border-radius: 18px;
@@ -107,6 +107,23 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 .surprise:hover { transform: translateY(-2px) rotate(-1deg); background: #2a373c; }
 .surprise span { color: #f5c75d; margin-right: 5px; }
+
+.view-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 15px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 750;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: transform .18s ease, background .18s ease;
+}
+.view-toggle:hover { transform: translateY(-2px); background: #fff; }
+.view-toggle span[aria-hidden] { color: var(--epistemic); }
+.view-toggle.is-active { color: #fff; border-color: #2c4a8a; background: var(--epistemic); }
+.view-toggle.is-active span[aria-hidden] { color: #d8e4fb; }
 
 .field-meta {
   position: absolute;
@@ -207,11 +224,12 @@ dialog .credit { margin: 18px 0 0; color: #737772; font-size: 11px; }
 .sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
 
 @media (max-width: 760px) {
-  .topbar { top: 10px; grid-template-columns: 1fr auto; width: calc(100% - 20px); }
+  .topbar { top: 10px; grid-template-columns: 1fr auto auto; width: calc(100% - 20px); }
   .brand { display: none; }
-  .search-wrap, .surprise { min-height: 48px; border-radius: 16px; }
-  .surprise { width: 48px; padding: 0; font-size: 0; }
-  .surprise span { margin: 0; font-size: 19px; }
+  .search-wrap, .surprise, .view-toggle { min-height: 48px; border-radius: 16px; }
+  .surprise, .view-toggle { width: 48px; padding: 0; font-size: 0; }
+  .surprise span, .view-toggle span[aria-hidden] { margin: 0; font-size: 19px; }
+  .view-toggle-label { display: none; }
   .field-meta { top: 70px; left: 14px; }
   .instructions { display: none; }
   .map-shell { bottom: 12px; left: 12px; }
