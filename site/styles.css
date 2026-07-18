@@ -108,6 +108,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .surprise:hover { transform: translateY(-2px) rotate(-1deg); background: #2a373c; }
 .surprise span { color: #f5c75d; margin-right: 5px; }
 
+.view-toggle-group { display: flex; align-items: center; gap: 10px; }
+
 .view-toggle {
   display: flex;
   align-items: center;

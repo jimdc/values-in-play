@@ -74,7 +74,7 @@ try {
   const modelCards = page.locator(".model-card");
   assert.equal(await modelCards.count(), 3, "should render a profile card for each of the 3 models");
 
-  const backToggle = page.locator(".view-toggle");
+  const backToggle = page.locator('.view-toggle[href="./"]');
   assert.equal(await backToggle.getAttribute("href"), "./", "the languages view should link back to the field");
 
   assert.deepEqual(pageErrors, [], `page errors: ${pageErrors.join("; ")}`);
