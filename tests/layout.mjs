@@ -15,6 +15,15 @@ const server = spawn("python3", ["-m", "http.server", String(port), "--bind", "1
 const WIDTHS = [390, 768, 1440, 2000];
 const HEIGHT = 1200;
 
+// The field's x/y/size layout for all 3,307 values is precomputed at build time
+// (scripts/preprocess.py), so a fresh load should only fetch, parse, and draw — no
+// client-side bin-packing. Measured locally (unthrottled, unloaded machine): 10 runs at
+// 1280x800 landed 155-189ms, median 185ms. CI runners are typically slower and shared, so
+// this budget applies roughly 3x headroom over that observed max rather than a strict
+// localhost bound. A regression back to computing layout in the browser is the main
+// failure mode this guards against; it would blow well past this budget.
+const FIELD_RENDER_BUDGET_MS = 3000;
+
 const PAGES = [
   {
     path: "/",
@@ -84,10 +93,14 @@ function rectsOverlap(a, b) {
   return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
 }
 
-async function checkFieldPage(page, label) {
+async function checkFieldPage(page, label, elapsedMs) {
   await page.waitForFunction(() => document.querySelector("#field")?.dataset.ready === "true");
   const field = page.locator("#field");
   assert.equal(await field.getAttribute("data-rendered-count"), "3307", `${label}: field should render all values`);
+  assert.ok(
+    elapsedMs < FIELD_RENDER_BUDGET_MS,
+    `${label}: field should be visible and interactive within ${FIELD_RENDER_BUDGET_MS}ms (took ${elapsedMs}ms)`
+  );
 }
 
 async function checkLanguagesPage(page, label) {
@@ -139,13 +152,15 @@ try {
 
     for (const spec of PAGES) {
       const label = `${spec.slug}@${width}`;
+      const navStart = Date.now();
       await page.goto(`${origin}${spec.path}`, { waitUntil: "networkidle" });
       await page.waitForFunction(spec.readyExpr);
+      const elapsedMs = Date.now() - navStart;
 
       await assertNoHorizontalOverflow(page, label);
       await assertHeaderNavConsistent(page, label);
 
-      if (spec.slug === "field") await checkFieldPage(page, label);
+      if (spec.slug === "field") await checkFieldPage(page, label, elapsedMs);
       if (spec.slug === "languages") await checkLanguagesPage(page, label);
 
       await page.screenshot({

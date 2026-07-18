@@ -146,6 +146,16 @@ def main() -> None:
     if len(leaves) != 3307 or len(frequencies) != 3307:
         raise ValueError("Expected 3,307 leaves and 3,307 frequency rows")
 
+    # Cluster ids in the source CSV are long UUID-shaped strings repeated across every
+    # leaf that shares an ancestor; recoding them to short, sorted (deterministic) integers
+    # keeps the shipped JSON far smaller without changing what the browser can look up.
+    cluster_code = {
+        cluster_id: index
+        for index, cluster_id in enumerate(
+            sorted(row["cluster_id"] for row in tree_rows if row["level"] != "0")
+        )
+    }
+
     values = []
     by_domain: dict[str, list[dict]] = defaultdict(list)
     by_level_two: dict[str, list[dict]] = defaultdict(list)
@@ -170,15 +180,15 @@ def main() -> None:
             raise ValueError(f"Missing frequency for {leaf['name']!r}")
 
         item = {
-            "id": leaf["cluster_id"],
             "name": leaf["name"],
             "pctConvos": frequencies[leaf["name"]],
             "pctExpressions": float(leaf["pct_total_occurrences"]),
+            # Recoded to short cluster_code integers just before serialization, once
+            # every rect/placement computation below is done with the original ids.
             "parentId": chain[0]["cluster_id"],
             "level2Id": chain[1]["cluster_id"],
             "domainId": chain[2]["cluster_id"],
             "domain": domain,
-            "ancestorNames": [node["name"] for node in chain],
             "search": " ".join([leaf["name"], *(node["name"] for node in chain)]).lower(),
         }
         values.append(item)
@@ -208,7 +218,6 @@ def main() -> None:
             level_two_rect = level_two_rects[level_two_id]
             regions.append(
                 {
-                    "id": level_two_id,
                     "name": nodes[level_two_id]["name"],
                     "domain": domain,
                     "level": 2,
@@ -232,13 +241,17 @@ def main() -> None:
                 place_labels(by_parent[parent_id], parent_rect)
 
     values.sort(key=lambda row: (DOMAIN_ORDER.index(row["domain"]), row["name"]))
+    for item in values:
+        item["parentId"] = cluster_code[item["parentId"]]
+        item["level2Id"] = cluster_code[item["level2Id"]]
+        item["domainId"] = cluster_code[item["domainId"]]
+
     clusters = {
-        row["cluster_id"]: {
-            "id": row["cluster_id"],
+        str(cluster_code[row["cluster_id"]]): {
             "name": row["name"],
             "description": row["description"],
             "level": int(row["level"]),
-            "parentId": row["parent_cluster_id"] or None,
+            "parentId": cluster_code[row["parent_cluster_id"]] if row["parent_cluster_id"] else None,
             "pctExpressions": float(row["pct_total_occurrences"]),
         }
         for row in tree_rows
