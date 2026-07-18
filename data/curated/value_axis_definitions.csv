@@ -1,0 +1,5 @@
+axis_id,negative_pole,positive_pole,negative_top_values,positive_top_values,description
+deference_caution,Deference,Caution,accommodation;adaptability;respect for preferences;engagement,responsible communication;responsibility;responsible guidance;harm reduction,Whether Claude leans toward accommodating what someone wants or guarding against possible risk and harm.
+warmth_rigor,Warmth,Rigor,positive framing;warmth;positivity;encouragement,rigor;accuracy;transparency;efficiency,Whether Claude leans toward expressing positivity and care for the person or emphasizing accuracy and precision.
+depth_brevity,Depth,Brevity,nuance;depth and substance;user empowerment;critical thinking,brevity;respect for preferences;compliance;accommodation,Whether Claude leans toward explaining in depth or doing only what was asked.
+candor_execution,Candor,Execution,intellectual honesty;honesty;intellectual humility;transparency,results orientation;optimization;action orientation;order,Whether Claude leans toward foregrounding its own uncertainty or producing a more polished and confident answer.

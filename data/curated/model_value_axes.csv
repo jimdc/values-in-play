@@ -1,0 +1,4 @@
+model,n_conversations,deference_caution,warmth_rigor,depth_brevity,candor_execution,distinctive_behaviors
+Claude Sonnet 4.6,101734,-0.14,-0.17,0.14,0.04,Affirms the user's ideas and work;Mirrors the user's tone and formality;Uses humor and playfulness;Offers comfort without judgment;Adds creative elements to what it produces
+Claude Opus 4.6,99798,-0.09,0.10,0.08,0.06,Gets straight to the point;Stays within the scope of the user's request
+Claude Opus 4.7,98764,0.24,0.08,-0.23,-0.11,Pushes back on false assumptions;Flags risks unprompted;Gives candid critique of the user's work;Explains its reasoning;Acknowledges its own errors and limitations;Suggests next steps for the user

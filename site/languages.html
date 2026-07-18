@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="How Claude's expressed values shift across 20 languages and 3 models, and how that compares to human cultural-values survey data.">
+    <meta name="theme-color" content="#f4eddf">
+    <title>Values in Play — Languages</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="./languages.css">
+  </head>
+  <body class="languages-body">
+    <header class="topbar static">
+      <a class="brand" href="./" aria-label="Values in Play home">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        <span>values in play</span>
+      </a>
+      <p class="topbar-title">Languages explorer</p>
+      <a class="view-toggle is-active" href="./">
+        <span aria-hidden="true">◆</span> <span class="view-toggle-label">Field</span>
+      </a>
+    </header>
+
+    <main class="lang-explorer" aria-label="Languages explorer">
+      <section class="lang-hero">
+        <p class="eyebrow">Same Claude, different language</p>
+        <h1>How Claude's values shift across languages</h1>
+        <p class="lede">
+          Anthropic measured how Claude's expressed values lean across four axes — <strong>Deference
+          vs. Caution</strong>, <strong>Warmth vs. Rigor</strong>, <strong>Depth vs. Brevity</strong>,
+          and <strong>Candor vs. Execution</strong> — in roughly 309,815 real conversations across the
+          20 most common languages on Claude.ai and 3 models. This page turns those profiles into
+          something to play with: which languages cluster together, which axes divide them, and
+          whether any of it rhymes with how people in different countries describe their own values.
+        </p>
+        <p class="source-line">
+          Source: Anthropic, <a href="https://www.anthropic.com/research/claude-values-models-languages" target="_blank" rel="noreferrer">“Claude's values across models and languages”</a>
+          (Jul 13, 2026). Figures are transcribed from the article's published charts — see
+          <code>data/curated/README.md</code> for exactly what was measured, transcribed, and estimated.
+        </p>
+      </section>
+
+      <section class="lang-panel" id="map-panel" aria-labelledby="map-heading">
+        <div class="panel-head">
+          <h2 id="map-heading">Language map</h2>
+          <p>Every language plotted by two of the four axes. Most languages sit near the average —
+            a few lean hard in one direction. Click a dot for its full profile.</p>
+        </div>
+        <div class="map-controls">
+          <label>Horizontal axis
+            <select id="axis-x"></select>
+          </label>
+          <label>Vertical axis
+            <select id="axis-y"></select>
+          </label>
+        </div>
+        <div class="map-stage">
+          <svg id="lang-scatter" viewBox="0 0 640 480" role="img" aria-label="Scatter plot of 20 languages positioned by two value axes"></svg>
+        </div>
+        <p class="chart-source">Data: Anthropic value-axis study, transcribed (σ from the cross-conversation mean).</p>
+      </section>
+
+      <section class="lang-panel" id="card-panel" aria-labelledby="card-heading">
+        <div class="panel-head">
+          <h2 id="card-heading">Profile card</h2>
+          <p>The selected language's lean on all four axes, plus the behaviors Anthropic's analysis
+            found distinctive to it.</p>
+        </div>
+        <div id="profile-card" class="profile-card"></div>
+        <p class="chart-source">Data: Anthropic value-axis study, transcribed.</p>
+      </section>
+
+      <section class="lang-panel" id="heatmap-panel" aria-labelledby="heatmap-heading">
+        <div class="panel-head">
+          <h2 id="heatmap-heading">The duality: languages × axes</h2>
+          <p>The same matrix, read two ways — languages clustered by their value profile, and axes
+            read across all languages at once. Toggle to flip which side you're scanning.</p>
+        </div>
+        <div class="heatmap-controls">
+          <button type="button" id="cluster-toggle" class="chip-button" aria-pressed="false">Cluster similar languages</button>
+          <button type="button" id="transpose-toggle" class="chip-button" aria-pressed="false">Flip axes ↔ languages</button>
+        </div>
+        <div class="heatmap-stage">
+          <div id="heatmap" role="table" aria-label="Heatmap of languages by value axes"></div>
+        </div>
+        <p class="chart-source">Data: Anthropic value-axis study, transcribed. Color encodes σ from the mean toward each axis's labeled pole.</p>
+      </section>
+
+      <section class="lang-panel" id="compare-panel" aria-labelledby="compare-heading">
+        <div class="panel-head">
+          <h2 id="compare-heading">Does it rhyme with human values data?</h2>
+          <p>
+            The <a href="https://en.wikipedia.org/wiki/Inglehart%E2%80%93Welzel_cultural_map_of_the_world" target="_blank" rel="noreferrer">Inglehart–Welzel cultural map</a>
+            plots countries by how their people answer the World Values Survey — traditional vs.
+            secular-rational values, and survival vs. self-expression values. It measures humans, not
+            Claude, and a language is not a country. Still: does the selected language's Claude
+            profile land anywhere near its speakers' rough neighborhood on the human map?
+          </p>
+        </div>
+        <div class="compare-stage">
+          <div class="compare-map-wrap">
+            <svg id="wvs-map" viewBox="0 0 520 480" role="img" aria-label="Inglehart-Welzel cultural map with the selected language's anchor countries highlighted"></svg>
+          </div>
+          <div id="compare-note" class="compare-note"></div>
+        </div>
+        <p class="chart-source caveat">
+          Estimated, not exact: country positions were read visually off the published chart image
+          (no numeric table is published for this map). A language's "anchor countries" are a small,
+          unweighted, hand-picked set of major speaker countries — see <code>data/curated/README.md</code>
+          for the full caveat and country list per language.
+        </p>
+      </section>
+
+      <section class="lang-panel" id="model-panel" aria-labelledby="model-heading">
+        <div class="panel-head">
+          <h2 id="model-heading">Secondary lens: does the model matter too?</h2>
+          <p>The same four axes, averaged across all conversations for each of the three models studied.</p>
+        </div>
+        <div id="model-cards" class="model-cards"></div>
+        <p class="chart-source">Data: Anthropic value-axis study, transcribed.</p>
+      </section>
+    </main>
+
+    <footer class="lang-footer">
+      <p>
+        Values across models and languages: <a href="https://www.anthropic.com/research/claude-values-models-languages" target="_blank" rel="noreferrer">Anthropic research post</a>
+        · <a href="https://cdn.sanity.io/files/4zrzovbb/website/02da7f28f74daa1be526d3ded451a4efc86bccdc.pdf" target="_blank" rel="noreferrer">Appendix</a>
+        · Human-values anchor: <a href="https://en.wikipedia.org/wiki/Inglehart%E2%80%93Welzel_cultural_map_of_the_world" target="_blank" rel="noreferrer">Inglehart–Welzel cultural map</a> (World Values Survey)
+      </p>
+      <p class="fine-print">
+        Value inference is subjective and this page's numbers are hand-transcribed from published
+        charts, not a released dataset — see <code>data/curated/README.md</code> in the repository
+        for full provenance. This is not a definitive assessment of Claude, language models, or any
+        language's speakers.
+      </p>
+    </footer>
+
+    <script type="module" src="./languages.js"></script>
+  </body>
+</html>

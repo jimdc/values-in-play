@@ -4,7 +4,7 @@
   "private": true,
   "description": "A playful explorer for Anthropic's Values in the Wild dataset.",
   "scripts": {
-    "preprocess": "python3 scripts/preprocess.py",
+    "preprocess": "python3 scripts/preprocess.py && python3 scripts/preprocess_languages.py",
     "test:data": "python3 -m unittest discover -s tests -p 'test_*.py'",
     "test:smoke": "node tests/smoke.mjs",
     "test": "npm run preprocess && npm run test:data && npm run test:smoke",
